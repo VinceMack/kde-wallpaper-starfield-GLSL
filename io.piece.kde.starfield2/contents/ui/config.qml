@@ -70,7 +70,7 @@ Kirigami.FormLayout {
     // Direction
     QQC2.ComboBox {
         Kirigami.FormData.label: "Direction:"
-        model: ["Up (default)", "Down", "Right", "Left"]
+        model: ["Up", "Down", "Right", "Left"]
         currentIndex: cfg_Direction
         onActivated: cfg_Direction = currentIndex
     }
