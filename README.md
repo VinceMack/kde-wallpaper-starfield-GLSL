@@ -70,8 +70,8 @@ Built with a dedicated **Qt 6 RHI GLSL fragment shader**, this edition offloads 
 
 ### Installing / Updating the Plugin
 
-1. Clone or download this repository.
-2. Open a terminal in the project directory and install the package using `kpackagetool6`:
+1. Download the latest release and extract its contents to a folder.
+2. Open a terminal in the extracted directory and install the package using `kpackagetool6`:
 
 ```bash
 # Install for the current user:
