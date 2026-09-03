@@ -104,6 +104,6 @@ qsb-qt6 --qt6 -o io.vince.kde.starfield.glsl/contents/shaders/starfield.frag.qsb
 ## Credits & Acknowledgements
 
 - **Original Creator**: This project was heavily inspired by and built upon the design and visual concept of [**kde-wallpaper-starfield**](https://github.com/piecler/kde-wallpaper-starfield) by [**piecler**](https://github.com/piecler) ([KDE Store Page](https://store.kde.org/p/2351283/)).
-- **Window Occlusion Logic**: Adapted from [**PlasmaWallpaper_CityGrow**](https://github.com/HobbyBlobby/PlasmaWallpaper_CityGrow) by HobbyBlobby.
+- **Window Occlusion Logic**: Adapted from [**PlasmaWallpaper_CityGrow**](https://github.com/HobbyBlobby/PlasmaWallpaper_CityGrow) by [**HobbyBlobby**](https://github.com/HobbyBlobby).
 
 ---
