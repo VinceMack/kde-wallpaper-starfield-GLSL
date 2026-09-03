@@ -2,7 +2,6 @@
 
 [![KDE Plasma 6](https://img.shields.io/badge/KDE%20Plasma-6-blue.svg)](https://kde.org/plasma-desktop/)
 [![Qt 6](https://img.shields.io/badge/Qt-6.x-green.svg)](https://www.qt.io/)
-[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 A hyper-optimized, dynamic 3D volumetric animated starfield wallpaper for **KDE Plasma 6**.
 
