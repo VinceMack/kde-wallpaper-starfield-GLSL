@@ -34,6 +34,7 @@ WallpaperItem {
         readonly property double nebulaSpawn:   wallpaper.configuration.NebulaSpawnProbability
         readonly property double nebulaRotAvg:  wallpaper.configuration.NebulaRotSpeedAvg
         readonly property double nebulaRotVar:  wallpaper.configuration.NebulaRotSpeedVar
+        readonly property int    targetFps:     (wallpaper.configuration.TargetFps !== undefined) ? wallpaper.configuration.TargetFps : 60
         readonly property bool   debugMode:     wallpaper.configuration.DebugMode
 
         readonly property bool isYAxis: direction === 0 || direction === 1
@@ -104,13 +105,25 @@ WallpaperItem {
 
             fragmentShader: Qt.resolvedUrl("../shaders/starfield.frag.qsb")
 
+            // Paced frame rate timer (e.g. 60 FPS or 30 FPS)
+            Timer {
+                id: fpsTimer
+                interval: bg.targetFps > 0 ? Math.round(1000 / bg.targetFps) : 16
+                running: !bg.isPaused && bg.targetFps > 0
+                repeat: true
+                onTriggered: {
+                    starShader.u_time += (interval / 1000.0)
+                }
+            }
+
+            // Uncapped VSync mode (only active when targetFps === 0)
             NumberAnimation on u_time {
                 from: 0.0
                 to: 1000000.0
                 duration: 1000000000
                 loops: Animation.Infinite
-                running: true
-                paused: bg.isPaused
+                running: !bg.isPaused && bg.targetFps === 0
+                paused: bg.isPaused || bg.targetFps > 0
             }
         }
 

@@ -70,6 +70,10 @@
       <label>Pause simulation when wallpaper is obscured by fullscreen or maximized windows</label>
       <default>true</default>
     </entry>
+    <entry name="TargetFps" type="int">
+      <label>Target frame rate limit (0=uncapped/vsync, 30=power saver, 60=balanced)</label>
+      <default>60</default>
+    </entry>
     <entry name="DebugMode" type="bool">
       <label>Enable debug overlay</label>
       <default>false</default>

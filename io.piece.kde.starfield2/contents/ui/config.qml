@@ -25,6 +25,7 @@ Kirigami.FormLayout {
     property double cfg_NebulaRotSpeedAvg
     property double cfg_NebulaRotSpeedVar
     property bool   cfg_PauseWhenBlocked
+    property int    cfg_TargetFps
     property bool   cfg_DebugMode
 
     readonly property int totalWeight: Math.max(1,
@@ -310,6 +311,17 @@ Kirigami.FormLayout {
         text: "Pause simulation when covered by fullscreen or maximized windows"
         checked: cfg_PauseWhenBlocked
         onToggled: cfg_PauseWhenBlocked = checked
+    }
+
+    QQC2.ComboBox {
+        Kirigami.FormData.label: "Target framerate:"
+        model: ["60 FPS (Recommended - Smooth)", "30 FPS (Power Saver)", "Uncapped (Display VSync)"]
+        currentIndex: cfg_TargetFps === 30 ? 1 : (cfg_TargetFps === 0 ? 2 : 0)
+        onActivated: {
+            if (currentIndex === 0) cfg_TargetFps = 60
+            else if (currentIndex === 1) cfg_TargetFps = 30
+            else cfg_TargetFps = 0
+        }
     }
 
     // Debug
