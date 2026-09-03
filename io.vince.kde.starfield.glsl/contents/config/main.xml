@@ -8,11 +8,11 @@
   <group name="Starfield">
     <entry name="StarCount" type="int">
       <label>Number of stars</label>
-      <default>444</default>
+      <default>1000</default>
     </entry>
     <entry name="Speed" type="double">
       <label>Speed multiplier</label>
-      <default>1.2</default>
+      <default>1.0</default>
     </entry>
     <entry name="Direction" type="int">
       <label>Direction of travel (0=up 1=down 2=right 3=left)</label>
@@ -20,43 +20,43 @@
     </entry>
     <entry name="TinyStars" type="int">
       <label>Relative weight of tiny stars (r 0.15–0.5)</label>
-      <default>732</default>
+      <default>237</default>
     </entry>
     <entry name="SmallStars" type="int">
       <label>Relative weight of small stars (r 0.5–1.3)</label>
-      <default>212</default>
+      <default>448</default>
     </entry>
     <entry name="MediumStars" type="int">
       <label>Relative weight of medium stars (r 1.3–2.0)</label>
-      <default>52</default>
+      <default>696</default>
     </entry>
     <entry name="LargeStars" type="int">
       <label>Relative weight of large stars (r 2.0–3.5)</label>
-      <default>4</default>
+      <default>1000</default>
     </entry>
     <entry name="ColorThreshold" type="double">
       <label>Minimum radius for spectral colour (below = grey-white)</label>
-      <default>1.75</default>
+      <default>0.0</default>
     </entry>
     <entry name="NebulaCount" type="int">
       <label>Maximum number of nebulas</label>
-      <default>4</default>
+      <default>20</default>
     </entry>
     <entry name="NebulaOpacity" type="double">
       <label>Maximum nebula opacity</label>
-      <default>0.25</default>
+      <default>0.8</default>
     </entry>
     <entry name="NebulaOpacityMin" type="double">
       <label>Minimum nebula opacity</label>
-      <default>0.08</default>
+      <default>0.2</default>
     </entry>
     <entry name="NebulaSize" type="double">
       <label>Maximum nebula size (base radius)</label>
-      <default>220</default>
+      <default>300</default>
     </entry>
     <entry name="NebulaSpawnProbability" type="double">
       <label>Nebula spawn probability when below max</label>
-      <default>0.25</default>
+      <default>1.0</default>
     </entry>
     <entry name="NebulaRotSpeedAvg" type="double">
       <label>Average nebula rotation speed (seconds per 360°)</label>
@@ -72,7 +72,7 @@
     </entry>
     <entry name="TargetFps" type="int">
       <label>Target frame rate limit (0=uncapped/vsync, 30=power saver, 60=balanced)</label>
-      <default>60</default>
+      <default>0</default>
     </entry>
     <entry name="DebugMode" type="bool">
       <label>Enable debug overlay</label>
