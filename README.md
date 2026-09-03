@@ -1,8 +1,5 @@
 # KDE Plasma 6 Wallpaper: Animated Starfield (GLSL Edition)
 
-[![KDE Plasma 6](https://img.shields.io/badge/KDE%20Plasma-6-blue.svg)](https://kde.org/plasma-desktop/)
-[![Qt 6](https://img.shields.io/badge/Qt-6.x-green.svg)](https://www.qt.io/)
-
 A hyper-optimized, dynamic 3D volumetric animated starfield wallpaper for **KDE Plasma 6**.
 
 Built with a dedicated **Qt 6 RHI GLSL fragment shader**, this edition offloads the entire starfield simulation to the GPU, leaving the CPU 100% idle and eliminating desktop interaction latency.
