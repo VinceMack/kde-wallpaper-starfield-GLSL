@@ -2,7 +2,7 @@
 
 A hyper-optimized, dynamic 3D volumetric animated starfield wallpaper for **KDE Plasma 6**.
 
-Built with a dedicated **Qt 6 RHI GLSL fragment shader**, this edition offloads the entire starfield simulation to the GPU, leaving the CPU 100% idle and eliminating desktop interaction latency.
+Built with a dedicated **Qt 6 RHI GLSL fragment shader**, this edition offloads the entire starfield simulation to the GPU, leaving the CPU 100% idle and eliminating desktop interaction latency. Available on [KDE Store](https://store.kde.org/p/2370311/).
 
 ---
 
@@ -100,7 +100,7 @@ qsb-qt6 --qt6 -o io.vince.kde.starfield.glsl/contents/shaders/starfield.frag.qsb
 
 ## Credits & Acknowledgements
 
-- **Original Creator**: This project was heavily inspired by and built upon the design and visual concept of [**kde-wallpaper-starfield**](https://github.com/piecler/kde-wallpaper-starfield) by [**piecler**](https://github.com/piecler) ([KDE Store Page](https://store.kde.org/p/2351283/)).
+- **Original Creator**: This project was heavily inspired by and built upon the design and visual concept of [**kde-wallpaper-starfield**](https://github.com/piecler/kde-wallpaper-starfield) by [**piecler**](https://github.com/piecler).
 - **Window Occlusion Logic**: Adapted from [**PlasmaWallpaper_CityGrow**](https://github.com/HobbyBlobby/PlasmaWallpaper_CityGrow) by [**HobbyBlobby**](https://github.com/HobbyBlobby).
 
 ---
