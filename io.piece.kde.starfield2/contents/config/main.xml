@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="Starfield">
+    <entry name="StarCount" type="int">
+      <label>Number of stars</label>
+      <default>444</default>
+    </entry>
+    <entry name="Speed" type="double">
+      <label>Speed multiplier</label>
+      <default>1.2</default>
+    </entry>
+    <entry name="Direction" type="int">
+      <label>Direction of travel (0=up 1=down 2=right 3=left)</label>
+      <default>2</default>
+    </entry>
+    <entry name="TinyStars" type="int">
+      <label>Relative weight of tiny stars (r 0.15–0.5)</label>
+      <default>732</default>
+    </entry>
+    <entry name="SmallStars" type="int">
+      <label>Relative weight of small stars (r 0.5–1.3)</label>
+      <default>212</default>
+    </entry>
+    <entry name="MediumStars" type="int">
+      <label>Relative weight of medium stars (r 1.3–2.0)</label>
+      <default>52</default>
+    </entry>
+    <entry name="LargeStars" type="int">
+      <label>Relative weight of large stars (r 2.0–3.5)</label>
+      <default>4</default>
+    </entry>
+    <entry name="ColorThreshold" type="double">
+      <label>Minimum radius for spectral colour (below = grey-white)</label>
+      <default>1.75</default>
+    </entry>
+    <entry name="NebulaCount" type="int">
+      <label>Maximum number of nebulas</label>
+      <default>4</default>
+    </entry>
+    <entry name="NebulaOpacity" type="double">
+      <label>Maximum nebula opacity</label>
+      <default>0.25</default>
+    </entry>
+    <entry name="NebulaOpacityMin" type="double">
+      <label>Minimum nebula opacity</label>
+      <default>0.08</default>
+    </entry>
+    <entry name="NebulaSize" type="double">
+      <label>Maximum nebula size (base radius)</label>
+      <default>220</default>
+    </entry>
+    <entry name="NebulaSpawnProbability" type="double">
+      <label>Nebula spawn probability when below max</label>
+      <default>0.25</default>
+    </entry>
+    <entry name="NebulaRotSpeedAvg" type="double">
+      <label>Average nebula rotation speed (seconds per 360°)</label>
+      <default>90</default>
+    </entry>
+    <entry name="NebulaRotSpeedVar" type="double">
+      <label>Nebula rotation speed variation (±seconds)</label>
+      <default>45</default>
+    </entry>
+    <entry name="PauseWhenBlocked" type="bool">
+      <label>Pause simulation when wallpaper is obscured by fullscreen or maximized windows</label>
+      <default>true</default>
+    </entry>
+    <entry name="DebugMode" type="bool">
+      <label>Enable debug overlay</label>
+      <default>false</default>
+    </entry>
+  </group>
+</kcfg>

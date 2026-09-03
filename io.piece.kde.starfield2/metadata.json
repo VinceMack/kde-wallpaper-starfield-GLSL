@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "Plasma/Wallpaper",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "piece"
+            }
+        ],
+        "Category": "",
+        "Description": "Animated starfield",
+        "Icon": "preferences-desktop-color",
+        "Id": "io.piece.kde.starfield2",
+        "License": "GPLv2+",
+        "Name": "Starfield (NEW)"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell"
+}
