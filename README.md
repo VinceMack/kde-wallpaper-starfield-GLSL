@@ -108,7 +108,3 @@ qsb-qt6 --qt6 -o io.vince.kde.starfield.glsl/contents/shaders/starfield.frag.qsb
 - **Window Occlusion Logic**: Adapted from [**PlasmaWallpaper_CityGrow**](https://github.com/lemkef/PlasmaWallpaper_CityGrow) by Felix Lemke and Smart Video Wallpaper by ADHE.
 
 ---
-
-## License
-
-This project is licensed under the **GNU General Public License v2.0 or later** (GPL-2.0-or-later). See individual file headers for licensing details.
