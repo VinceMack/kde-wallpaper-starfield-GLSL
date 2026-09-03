@@ -11,10 +11,9 @@ WallpaperItem {
         id: windowModel
     }
 
-    Rectangle {
+    Item {
         id: bg
         anchors.fill: parent
-        color: "black"
 
         readonly property bool   runSimulation:  windowModel.runSimulation
         readonly property bool   isPaused:       !runSimulation
@@ -94,6 +93,7 @@ WallpaperItem {
         ShaderEffect {
             id: starShader
             anchors.fill: parent
+            blending: false
 
             property real     u_time: 0.0
             property vector2d u_resolution: Qt.vector2d(bg.width > 0 ? bg.width : 1920, bg.height > 0 ? bg.height : 1080)
@@ -132,7 +132,7 @@ WallpaperItem {
         Loader {
             id: nebulasLoader
             anchors.fill: parent
-            active: bg.width > 0 && bg.height > 0
+            active: bg.nebulaCount > 0 && bg.width > 0 && bg.height > 0
             sourceComponent: nebulasComponent
         }
 

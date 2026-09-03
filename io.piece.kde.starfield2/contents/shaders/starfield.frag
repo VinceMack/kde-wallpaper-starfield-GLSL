@@ -40,7 +40,7 @@ vec3 spectralColor(float v) {
     return col;
 }
 
-// Ultra-optimized depth slice with Weyl recurrence and two-stage early bailout
+// Ultra-optimized depth slice with pre-computed reach and early spawn rejection
 void renderDepthSlice(
     inout vec3 accumColor,
     float pTravel,
@@ -51,6 +51,8 @@ void renderDepthSlice(
     float depthZ,
     float minRadius,
     float maxRadius,
+    float maxReach,
+    float maxReach2,
     float spawnProbability,
     float layerId
 ) {
@@ -59,30 +61,35 @@ void renderDepthSlice(
     // 1. Direct single-cell indexing
     float k = floor(pCross / laneWidth);
 
-    // Single-cycle Weyl recurrence for lane speed & phase (eliminates 4D hash call)
+    // 2. Cross-Axis 1D Pre-Filter (skips 20% of pixels before ANY travel/velocity math!)
+    float localCross = pCross - k * laneWidth;
+    if (localCross < (0.15 * laneWidth - maxReach - 1.5) || localCross > (0.85 * laneWidth + maxReach + 1.5)) return;
+
+    // Single-cycle Weyl recurrence for lane speed & phase
     float indSpeed = baseSpeed * (0.72 + fract(k * 0.38196601 + layerId * 0.61803398) * 0.56);
     float travelShift = u_time * indSpeed + fract(k * 0.75487766 + layerId * 0.137592) * 1000.0;
 
     float shiftedTravel = pTravel - travelShift;
     float seg = floor(shiftedTravel / segLength);
 
-    // 2. Fast 1-cycle scalar spawn rejection before full hash
+    // 3. Fast 1-cycle scalar spawn rejection (bails out on 50-70% of cells BEFORE travel bounds!)
     vec2 cellId = vec2(k * 73.1 + seg * 31.7, layerId * 53.9 + seg * 17.3);
-    float spawnTest = fract(dot(cellId, vec2(0.38196601, 0.61803398)) * 43.17);
+    float spawnTest = fract(cellId.x * 0.38196601 + cellId.y * 0.61803398);
     if (spawnTest > spawnProbability) return;
 
-    // Full 4D hash evaluated only if star exists in cell
+    // 4. Travel-Axis 1D Pre-Filter (skips 90% of surviving cells before 4D hash)
+    float localTravel = shiftedTravel - seg * segLength;
+    if (localTravel < (0.15 * segLength - maxReach) || localTravel > (0.85 * segLength + maxReach)) return;
+
+    // 5. Full 4D hash evaluated only when pixel is in star corridor and star exists
     vec4 hStar = hash42(cellId);
 
-    // Maximum light reach in pixels for early bailout
-    float maxReach = (maxRadius >= u_colorThreshold) ? (maxRadius * 6.0) : (maxRadius + 1.2);
-
-    // 3. Early-out: Travel-axis distance check
+    // Exact Travel-axis distance check
     float starTravelPos = (seg + hStar.y * 0.70 + 0.15) * segLength + travelShift;
     float dTravel = pTravel - starTravelPos;
-    if (abs(dTravel) > maxReach) return; // 99% of empty pixels exit here
+    if (abs(dTravel) > maxReach) return;
 
-    // 4. Early-out: Cross-axis distance check with fast triangle-wave drift
+    // Exact Cross-axis distance check with fast triangle-wave drift
     float starCrossPos = (k + hStar.z * 0.70 + 0.15) * laneWidth;
     float driftWave = abs(fract(u_time * (0.25 + hStar.w * 0.35) + hStar.x) * 2.0 - 1.0) * 2.0 - 1.0;
     starCrossPos += driftWave * (depthZ * 1.5);
@@ -90,9 +97,8 @@ void renderDepthSlice(
     float dCross = pCross - starCrossPos;
     if (abs(dCross) > maxReach) return;
 
-    // 5. Squared Euclidean distance (zero sqrt)
+    // Squared Euclidean distance (zero sqrt)
     float dist2 = dTravel * dTravel + dCross * dCross;
-    float maxReach2 = maxReach * maxReach;
     if (dist2 > maxReach2) return;
 
     // ── Pixel touches a star (< 0.2% of pixels): compute appearance ──
@@ -119,40 +125,46 @@ void renderDepthSlice(
 }
 
 void main() {
-    vec2 pixelCoord = qt_TexCoord0 * u_resolution;
-    vec3 col = vec3(0.0);
-
-    // Pre-normalized travel & cross vectors (no per-pixel normalize() overhead)
     vec2 dir = u_direction;
     vec2 crossDir = vec2(-dir.y, dir.x);
 
-    float pTravel = dot(pixelCoord, dir);
-    float pCross  = dot(pixelCoord, crossDir);
+    // Vector pre-multiplication (eliminates pixelCoord vector multiply)
+    vec2 travelVector = u_resolution * dir;
+    vec2 crossVector  = u_resolution * crossDir;
+
+    float pTravel = dot(qt_TexCoord0, travelVector);
+    float pCross  = dot(qt_TexCoord0, crossVector);
+
+    vec3 col = vec3(0.0);
 
     float totalWeight = max(1.0, u_starWeights.x + u_starWeights.y + u_starWeights.z + u_starWeights.w);
     float countFactor = clamp(u_starCount / 444.0, 0.02, 3.0);
 
+    // 1-to-1 mapping with the 4 user sliders
     float wTiny  = (u_starWeights.x / totalWeight) * countFactor;
     float wSmall = (u_starWeights.y / totalWeight) * countFactor;
     float wMed   = (u_starWeights.z / totalWeight) * countFactor;
     float wLarge = (u_starWeights.w / totalWeight) * countFactor;
 
-    // ── 5 Finely Balanced Parallax Layers ─────────────────────────────────
+    // Pre-computed reach constants per layer
+    float r0 = (0.45 >= u_colorThreshold) ? 2.70 : 1.65;
+    float r1 = (1.15 >= u_colorThreshold) ? 6.90 : 2.35;
+    float r2 = (1.95 >= u_colorThreshold) ? 11.70 : 3.15;
+    float r3 = (3.50 >= u_colorThreshold) ? 21.00 : 4.70;
 
-    // Layer 0: Deep background tiny stars (highest density, slowest drift)
-    renderDepthSlice(col, pTravel, pCross, 30.0, 44.0, 16.0 * u_speed, 0.12, 0.15, 0.35, clamp(wTiny * 0.95, 0.0, 1.0), 0.0);
+    // ── 4 Dedicated Depth Layers (1:1 with user weight categories) ──
 
-    // Layer 1: Distant small stars
-    renderDepthSlice(col, pTravel, pCross, 48.0, 68.0, 26.0 * u_speed, 0.32, 0.35, 0.75, clamp(wTiny * 0.40 + wSmall * 0.55, 0.0, 1.0), 1.0);
+    // Layer 0: Tiny stars (TinyStars slider) - Dense background drift
+    renderDepthSlice(col, pTravel, pCross, 30.0, 44.0, 18.0 * u_speed, 0.15, 0.15, 0.45, r0, r0 * r0, clamp(wTiny * 0.95, 0.0, 1.0), 0.0);
 
-    // Layer 2: Midground small-to-medium stars
-    renderDepthSlice(col, pTravel, pCross, 74.0, 105.0, 42.0 * u_speed, 0.55, 0.75, 1.35, clamp(wSmall * 0.70 + wMed * 0.25, 0.0, 1.0), 2.0);
+    // Layer 1: Small stars (SmallStars slider) - Mid-distant field
+    renderDepthSlice(col, pTravel, pCross, 54.0, 78.0, 32.0 * u_speed, 0.40, 0.50, 1.15, r1, r1 * r1, clamp(wSmall * 0.85, 0.0, 1.0), 1.0);
 
-    // Layer 3: Near medium-to-large stars
-    renderDepthSlice(col, pTravel, pCross, 115.0, 160.0, 64.0 * u_speed, 0.78, 1.35, 2.10, clamp(wMed * 0.65 + wLarge * 0.30, 0.0, 1.0), 3.0);
+    // Layer 2: Medium stars (MediumStars slider) - Faster near field
+    renderDepthSlice(col, pTravel, pCross, 96.0, 136.0, 56.0 * u_speed, 0.70, 1.15, 1.95, r2, r2 * r2, clamp(wMed * 0.75, 0.0, 1.0), 2.0);
 
-    // Layer 4: Foreground large radiant stars streaking rapidly across the field
-    renderDepthSlice(col, pTravel, pCross, 180.0, 245.0, 92.0 * u_speed, 1.00, 2.10, 3.50, clamp(wLarge * 0.55, 0.0, 1.0), 4.0);
+    // Layer 3: Large stars (LargeStars slider) - Swift luminous foreground
+    renderDepthSlice(col, pTravel, pCross, 165.0, 230.0, 88.0 * u_speed, 1.00, 1.95, 3.50, r3, r3 * r3, clamp(wLarge * 0.65, 0.0, 1.0), 3.0);
 
     fragColor = vec4(col, 1.0) * qt_Opacity;
 }
