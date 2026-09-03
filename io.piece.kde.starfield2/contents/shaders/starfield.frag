@@ -22,25 +22,31 @@ vec4 hash42(vec2 p) {
     return fract((p4.xxyz + p4.yzzw) * p4.zywx);
 }
 
-// Branchless spectral color palette (zero warp divergence)
+// Ultra-vibrant branchless 10-class celestial spectral palette (zero warp divergence)
 vec3 spectralColor(float v) {
-    vec3 cO = vec3(0.60, 0.72, 1.00); // Blue-violet (O)
-    vec3 cB = vec3(0.80, 0.88, 1.00); // Light blue (B)
-    vec3 cA = vec3(1.00, 0.98, 0.92); // White-yellow (A/F)
-    vec3 cG = vec3(1.00, 0.92, 0.60); // Yellow (G)
-    vec3 cK = vec3(1.00, 0.66, 0.30); // Orange (K)
-    vec3 cM = vec3(1.00, 0.38, 0.14); // Red (M)
+    vec3 cViolet   = vec3(0.55, 0.22, 1.00); // 0.00 - 0.05: Ultraviolet / Wolf-Rayet
+    vec3 cSapphire = vec3(0.20, 0.58, 1.00); // 0.05 - 0.15: Deep Sapphire Blue (O-type)
+    vec3 cCyan     = vec3(0.25, 0.88, 1.00); // 0.15 - 0.25: Electric Cyan / Azure (B-type)
+    vec3 cDiamond  = vec3(0.94, 0.98, 1.00); // 0.25 - 0.35: Brilliant Diamond (A-type)
+    vec3 cGold     = vec3(1.00, 0.88, 0.12); // 0.35 - 0.50: Solar Gold (G-type)
+    vec3 cAmber    = vec3(1.00, 0.52, 0.04); // 0.50 - 0.65: Fiery Molten Amber (K-type)
+    vec3 cRuby     = vec3(1.00, 0.16, 0.08); // 0.65 - 0.80: Deep Cosmic Ruby (M-type)
+    vec3 cMagenta  = vec3(1.00, 0.25, 0.82); // 0.80 - 0.90: Radiant Cosmic Magenta / Pulsar
+    vec3 cEmerald  = vec3(0.25, 0.96, 0.62); // 0.90 - 1.00: Rare Emerald Binary Emission
 
-    vec3 col = cO;
-    col = mix(col, cB, step(0.04, v));
-    col = mix(col, cA, step(0.22, v));
-    col = mix(col, cG, step(0.52, v));
-    col = mix(col, cK, step(0.67, v));
-    col = mix(col, cM, step(0.82, v));
+    vec3 col = cViolet;
+    col = mix(col, cSapphire, step(0.05, v));
+    col = mix(col, cCyan,     step(0.15, v));
+    col = mix(col, cDiamond,  step(0.25, v));
+    col = mix(col, cGold,     step(0.35, v));
+    col = mix(col, cAmber,    step(0.50, v));
+    col = mix(col, cRuby,     step(0.65, v));
+    col = mix(col, cMagenta,  step(0.80, v));
+    col = mix(col, cEmerald,  step(0.90, v));
     return col;
 }
 
-// Ultra-optimized depth slice with pre-computed reach and early spawn rejection
+// Ultra-optimized depth slice with high vibrancy and dual-axis 1D pre-filtering
 void renderDepthSlice(
     inout vec3 accumColor,
     float pTravel,
@@ -101,27 +107,32 @@ void renderDepthSlice(
     float dist2 = dTravel * dTravel + dCross * dCross;
     if (dist2 > maxReach2) return;
 
-    // ── Pixel touches a star (< 0.2% of pixels): compute appearance ──
+    // ── Pixel touches a star (< 0.2% of pixels): compute high-vibrancy appearance ──
     float radius = mix(minRadius, maxRadius, hStar.w);
     float radius2 = radius * radius;
 
     // Fast triangle-wave scintillation (zero trig cost)
     float twinkleWave = abs(fract(u_time * (1.6 + hStar.z * 2.8) + hStar.w) * 2.0 - 1.0);
-    float twinkle = 0.72 + 0.28 * twinkleWave;
-    float opacity = (0.45 + hStar.y * 0.55) * twinkle;
+    float twinkle = 0.75 + 0.25 * twinkleWave;
+    float opacity = (0.50 + hStar.y * 0.50) * twinkle;
 
-    // Core brightness: quadratic smooth falloff
-    float core = clamp(1.0 - dist2 / (radius2 + 0.25), 0.0, 1.0) * opacity;
+    // White-hot nucleus with piercing HDR brightness
+    float core = clamp(1.0 - dist2 / (radius2 + 0.20), 0.0, 1.0) * 1.35 * opacity;
 
-    // Photometric inverse-square glow
+    // Luminous photometric inverse-square corona / bloom
     bool hasGlow = (radius >= u_colorThreshold);
     float glow = 0.0;
     if (hasGlow) {
-        glow = (radius2 * 0.45) / (dist2 + radius2 * 0.65) * opacity;
+        glow = (radius2 * 1.10) / (dist2 + radius2 * 0.55) * opacity;
     }
 
-    vec3 col = hasGlow ? spectralColor(hStar.x) : vec3(0.72 + hStar.x * 0.28);
-    accumColor += col * (core + glow);
+    vec3 baseCol = hasGlow ? spectralColor(hStar.x) : vec3(0.80 + hStar.x * 0.20);
+
+    // Blazing white-hot nucleus at the center, surrounded by pure saturated chromatic corona
+    vec3 coreColor = mix(baseCol, vec3(1.0), 0.55);
+    vec3 glowColor = baseCol;
+
+    accumColor += coreColor * core + glowColor * glow;
 }
 
 void main() {
@@ -146,11 +157,11 @@ void main() {
     float wMed   = (u_starWeights.z / totalWeight) * countFactor;
     float wLarge = (u_starWeights.w / totalWeight) * countFactor;
 
-    // Pre-computed reach constants per layer
-    float r0 = (0.45 >= u_colorThreshold) ? 2.70 : 1.65;
-    float r1 = (1.15 >= u_colorThreshold) ? 6.90 : 2.35;
-    float r2 = (1.95 >= u_colorThreshold) ? 11.70 : 3.15;
-    float r3 = (3.50 >= u_colorThreshold) ? 21.00 : 4.70;
+    // Pre-computed reach constants per layer (expanded for radiant coronas)
+    float r0 = (0.45 >= u_colorThreshold) ? 3.00 : 1.65;
+    float r1 = (1.15 >= u_colorThreshold) ? 7.50 : 2.50;
+    float r2 = (1.95 >= u_colorThreshold) ? 13.50 : 3.50;
+    float r3 = (3.50 >= u_colorThreshold) ? 24.00 : 5.00;
 
     // ── 4 Dedicated Depth Layers (1:1 with user weight categories) ──
 
@@ -164,7 +175,7 @@ void main() {
     renderDepthSlice(col, pTravel, pCross, 96.0, 136.0, 56.0 * u_speed, 0.70, 1.15, 1.95, r2, r2 * r2, clamp(wMed * 0.75, 0.0, 1.0), 2.0);
 
     // Layer 3: Large stars (LargeStars slider) - Swift luminous foreground
-    renderDepthSlice(col, pTravel, pCross, 165.0, 230.0, 88.0 * u_speed, 1.00, 1.95, 3.50, r3, r3 * r3, clamp(wLarge * 0.65, 0.0, 1.0), 3.0);
+    renderDepthSlice(col, pTravel, pCross, 175.0, 245.0, 88.0 * u_speed, 1.00, 1.95, 3.50, r3, r3 * r3, clamp(wLarge * 0.65, 0.0, 1.0), 3.0);
 
     fragColor = vec4(col, 1.0) * qt_Opacity;
 }
