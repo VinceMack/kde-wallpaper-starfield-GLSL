@@ -4,15 +4,15 @@
         "Authors": [
             {
                 "Email": "",
-                "Name": "piece"
+                "Name": "VinceMack"
             }
         ],
         "Category": "",
-        "Description": "Animated starfield",
+        "Description": "Dynamic 3D volumetric animated starfield built with a Qt 6 RHI GLSL fragment shader.",
         "Icon": "preferences-desktop-color",
-        "Id": "io.piece.kde.starfield2",
+        "Id": "io.vince.kde.starfield.glsl",
         "License": "GPLv2+",
-        "Name": "Starfield (NEW)"
+        "Name": "Starfield (GLSL)"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell"
 }

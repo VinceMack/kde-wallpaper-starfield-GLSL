@@ -76,28 +76,28 @@ Built with a dedicated **Qt 6 RHI GLSL fragment shader**, this edition offloads 
 
 ```bash
 # Install for the current user:
-kpackagetool6 -t Plasma/Wallpaper -i io.piece.kde.starfield2
+kpackagetool6 -t Plasma/Wallpaper -i io.vince.kde.starfield.glsl
 
 # Or to update an existing installation:
-kpackagetool6 -t Plasma/Wallpaper -u io.piece.kde.starfield2
+kpackagetool6 -t Plasma/Wallpaper -u io.vince.kde.starfield.glsl
 ```
 
-3. Right-click on your desktop, select **Configure Desktop and Wallpaper...**, and choose **Starfield (NEW)** from the Wallpaper Type dropdown.
+3. Right-click on your desktop, select **Configure Desktop and Wallpaper...**, and choose **Starfield (GLSL)** from the Wallpaper Type dropdown.
 
 ### Uninstalling
 
 ```bash
-kpackagetool6 -t Plasma/Wallpaper -r io.piece.kde.starfield2
+kpackagetool6 -t Plasma/Wallpaper -r io.vince.kde.starfield.glsl
 ```
 
 ---
 
 ## Compiling Shaders (For Developers)
 
-The package includes pre-compiled `.qsb` shader binaries in `contents/shaders/`. If you modify `contents/shaders/starfield.frag`, recompile it with `qsb` (Qt Shader Baker):
+The package includes pre-compiled `.qsb` shader binaries in `contents/shaders/`. If you modify `io.vince.kde.starfield.glsl/contents/shaders/starfield.frag`, recompile it with `qsb` (Qt Shader Baker):
 
 ```bash
-qsb-qt6 --qt6 -o contents/shaders/starfield.frag.qsb contents/shaders/starfield.frag
+qsb-qt6 --qt6 -o io.vince.kde.starfield.glsl/contents/shaders/starfield.frag.qsb io.vince.kde.starfield.glsl/contents/shaders/starfield.frag
 ```
 
 ---
