@@ -116,14 +116,12 @@ WallpaperItem {
                 }
             }
 
-            // Uncapped VSync mode (only active when targetFps === 0)
-            NumberAnimation on u_time {
-                from: 0.0
-                to: 1000000.0
-                duration: 1000000000
-                loops: Animation.Infinite
+            // Uncapped native VSync mode (when targetFps === 0)
+            FrameAnimation {
                 running: !bg.isPaused && bg.targetFps === 0
-                paused: bg.isPaused || bg.targetFps > 0
+                onTriggered: {
+                    starShader.u_time += Math.min(frameTime, 0.1)
+                }
             }
         }
 
@@ -284,7 +282,6 @@ WallpaperItem {
                             // Infinite loop: roll spawn probability, reposition, traverse
                             SequentialAnimation {
                                 loops: Animation.Infinite
-                                paused: bg.isPaused
                                 ScriptAction { script: {
                                     if (Math.random() < bg.nebulaSpawn) {
                                         neb.respawn()   // sets isActive = true, triggers rotation restart
@@ -343,7 +340,7 @@ WallpaperItem {
             color: bg.isPaused ? "#ff0000" : "#00ff00"
             font.family: "monospace"
             font.pixelSize: 11
-            text: "DEBUG — Starfield GLSL / Nebulas " + (bg.isPaused ? "[PAUSED]" : "[RUNNING]")
+            text: "DEBUG — Starfield GLSL " + (bg.isPaused ? "[PAUSED]" : "[RUNNING]") + " | Time: " + starShader.u_time.toFixed(1) + "s"
         }
 
     }
