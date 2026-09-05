@@ -112,7 +112,11 @@ WallpaperItem {
                 running: !bg.isPaused && bg.targetFps > 0
                 repeat: true
                 onTriggered: {
-                    starShader.u_time += (interval / 1000.0)
+                    var dt = interval / 1000.0
+                    if (!isFinite(starShader.u_time) || isNaN(starShader.u_time)) {
+                        starShader.u_time = 0.0
+                    }
+                    starShader.u_time += dt
                 }
             }
 
@@ -120,7 +124,13 @@ WallpaperItem {
             FrameAnimation {
                 running: !bg.isPaused && bg.targetFps === 0
                 onTriggered: {
-                    starShader.u_time += Math.min(frameTime, 0.1)
+                    var dt = (typeof frameTime === "number" && isFinite(frameTime) && frameTime > 0)
+                        ? Math.min(frameTime, 0.1)
+                        : 0.016
+                    if (!isFinite(starShader.u_time) || isNaN(starShader.u_time)) {
+                        starShader.u_time = 0.0
+                    }
+                    starShader.u_time += dt
                 }
             }
         }
@@ -271,6 +281,13 @@ WallpaperItem {
                             running: false
                             paused: bg.isPaused
 
+                            onRunningChanged: {
+                                if (!running && !bg.isPaused && !neb.isActive) {
+                                    neb.respawn()
+                                    start()
+                                }
+                            }
+
                             // Lead-in: from wherever the nebula starts to off-screen
                             NumberAnimation {
                                 target: neb; property: bg.isYAxis ? "y" : "x"
@@ -297,6 +314,15 @@ WallpaperItem {
                                     to: neb.mainTo
                                     duration: (neb.axisSpan + 2 * neb.canvasHalf) / neb.speed * 1000
                                     easing.type: Easing.Linear
+                                }
+                            }
+                        }
+
+                        Connections {
+                            target: bg
+                            function onIsPausedChanged() {
+                                if (!bg.isPaused && !nebAnim.running) {
+                                    nebAnim.start()
                                 }
                             }
                         }

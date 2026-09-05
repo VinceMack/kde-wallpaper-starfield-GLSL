@@ -24,6 +24,9 @@ vec4 hash42(vec2 p) {
 
 // Ultra-vibrant branchless 10-class celestial spectral palette (zero warp divergence)
 vec3 spectralColor(float v) {
+    if (isnan(v) || isinf(v)) v = 0.30;
+    v = clamp(v, 0.0, 1.0);
+
     vec3 cViolet   = vec3(0.55, 0.22, 1.00); // 0.00 - 0.05: Ultraviolet / Wolf-Rayet
     vec3 cSapphire = vec3(0.20, 0.58, 1.00); // 0.05 - 0.15: Deep Sapphire Blue (O-type)
     vec3 cCyan     = vec3(0.25, 0.88, 1.00); // 0.15 - 0.25: Electric Cyan / Azure (B-type)
@@ -63,6 +66,7 @@ void renderDepthSlice(
     float layerId
 ) {
     if (spawnProbability <= 0.001) return;
+    if (isnan(u_time) || isinf(u_time)) return;
 
     // 1. Direct single-cell indexing
     float k = floor(pCross / laneWidth);
