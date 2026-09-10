@@ -12,7 +12,8 @@
         "Icon": "preferences-desktop-color",
         "Id": "io.vince.kde.starfield.glsl",
         "License": "GPLv2+",
-        "Name": "Starfield (GLSL)"
+        "Name": "Starfield (GLSL)",
+        "Version": "1.0.2"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell"
 }

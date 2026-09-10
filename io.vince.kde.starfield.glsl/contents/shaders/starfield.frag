@@ -75,15 +75,18 @@ void renderDepthSlice(
     float localCross = pCross - k * laneWidth;
     if (localCross < (0.15 * laneWidth - maxReach - 1.5) || localCross > (0.85 * laneWidth + maxReach + 1.5)) return;
 
-    // Single-cycle Weyl recurrence for lane speed & phase
+    // Single-cycle Weyl recurrence for lane speed & phase (wrapped modulo 256 segments for infinite precision stability)
+    float cycleLength = 256.0 * segLength;
     float indSpeed = baseSpeed * (0.72 + fract(k * 0.38196601 + layerId * 0.61803398) * 0.56);
-    float travelShift = u_time * indSpeed + fract(k * 0.75487766 + layerId * 0.137592) * 1000.0;
+    float rawShift = u_time * indSpeed + fract(k * 0.75487766 + layerId * 0.137592) * 1000.0;
+    float travelShift = mod(rawShift, cycleLength);
 
     float shiftedTravel = pTravel - travelShift;
     float seg = floor(shiftedTravel / segLength);
+    float cellSeg = mod(seg, 256.0);
 
-    // 3. Fast 1-cycle scalar spawn rejection (bails out on 50-70% of cells BEFORE travel bounds!)
-    vec2 cellId = vec2(k * 73.1 + seg * 31.7, layerId * 53.9 + seg * 17.3);
+    // 3. Fast 1-cycle scalar spawn rejection (bounded coordinates prevent float precision loss)
+    vec2 cellId = vec2(k * 17.1 + cellSeg * 7.3, layerId * 23.3 + cellSeg * 5.7);
     float spawnTest = fract(cellId.x * 0.38196601 + cellId.y * 0.61803398);
     if (spawnTest > spawnProbability) return;
 
@@ -94,14 +97,14 @@ void renderDepthSlice(
     // 5. Full 4D hash evaluated only when pixel is in star corridor and star exists
     vec4 hStar = hash42(cellId);
 
-    // Exact Travel-axis distance check
-    float starTravelPos = (seg + hStar.y * 0.70 + 0.15) * segLength + travelShift;
-    float dTravel = pTravel - starTravelPos;
+    // Exact Travel-axis distance check (derived from localTravel, 100% immune to float overflow)
+    float dTravel = localTravel - (hStar.y * 0.70 + 0.15) * segLength;
     if (abs(dTravel) > maxReach) return;
 
     // Exact Cross-axis distance check with fast triangle-wave drift
     float starCrossPos = (k + hStar.z * 0.70 + 0.15) * laneWidth;
-    float driftWave = abs(fract(u_time * (0.25 + hStar.w * 0.35) + hStar.x) * 2.0 - 1.0) * 2.0 - 1.0;
+    float driftTime = mod(u_time, 240.0);
+    float driftWave = abs(fract(driftTime * (0.25 + hStar.w * 0.35) + hStar.x) * 2.0 - 1.0) * 2.0 - 1.0;
     starCrossPos += driftWave * (depthZ * 1.5);
 
     float dCross = pCross - starCrossPos;
@@ -116,7 +119,8 @@ void renderDepthSlice(
     float radius2 = radius * radius;
 
     // Fast triangle-wave scintillation (zero trig cost)
-    float twinkleWave = abs(fract(u_time * (1.6 + hStar.z * 2.8) + hStar.w) * 2.0 - 1.0);
+    float twinkleTime = mod(u_time, 240.0);
+    float twinkleWave = abs(fract(twinkleTime * (1.6 + hStar.z * 2.8) + hStar.w) * 2.0 - 1.0);
     float twinkle = 0.75 + 0.25 * twinkleWave;
     float opacity = (0.50 + hStar.y * 0.50) * twinkle;
 
